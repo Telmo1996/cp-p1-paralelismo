@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-//#include <mpi.h>
+#include <mpi.h>
 
 double calculaPi(int numProc, int n){
 	double h, sum, x;
@@ -17,19 +17,45 @@ double calculaPi(int numProc, int n){
 
 int main(int argc, char *argv[])
 {
+	MPI_Init(&argc, &argv);
+
     int i, done = 0, n;
     double PI25DT = 3.141592653589793238462643;
     double pi, h, sum, x;
+	int numProcs, rank;
+	int N[1], Pi[1];
 
-    while (!done)
-    {
-        printf("Enter the number of intervals: (0 quits) \n");
-        scanf("%d",&n);
-    
-        if (n == 0) break;
-  
-		pi = calculaPi(0, n);
+	MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-        printf("pi is approximately %.16f, Error is %.16f\n", pi, fabs(pi - PI25DT));
-    }
+	
+	if(rank == 0){
+
+		while (!done)
+		{
+			printf("Enter the number of intervals: (0 quits) \n");
+			scanf("%d",&n);
+
+			if (n == 0) break;
+			
+			N[0] = n;
+			for(i=1; i<numProcs; i++)
+				MPI_Send(N, 1, MPI_INT, i, 99, MPI_COMM_WORLD);
+
+			//pi = calculaPi(0, n);
+
+			//printf("pi is approximately %.16f, Error is %.16f\n", pi, fabs(pi - PI25DT));
+		}
+
+	}else{
+		MPI_Recv(N, 1, MPI_INT, 0, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		//printf("%d", N[0]);
+
+		pi = calculaPi(rank, N[0]);
+		
+
+	}
+
+
+	MPI_Finalize();
 }
