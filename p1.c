@@ -17,10 +17,16 @@ double calculaPi(int numProc, int numProcs, int n){
 
 int MPI_FlattreeColectiva(void *buffer, int count, MPI_Datatype datatype,
 	int root, MPI_Comm comm){
-
-	/*for(i=1; i<numProcs; i++){
-		MPI_Send(&n, 1, MPI_INT, i, 99, MPI_COMM_WORLD);
-	}*/
+	int i, rank, numprocs;
+	if(rank==root){
+		for(i=0; i<numprocs; i++){
+			if(i!=root){	//No se envía a si mismo, no se puede poner i=1 porque el root no tiene por que ser el primer proceso
+				MPI_Send(buffer,count, datatype, i, 0, comm);
+			}
+		}
+	}else{
+		MPI_Recv(buffer, count, datatype, root, 0, comm, MPI_STATUS_IGNORE);
+	}
 	
 	return 0;
 }
