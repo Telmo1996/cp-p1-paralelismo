@@ -15,6 +15,23 @@ double calculaPi(int numProc, int numProcs, int n){
 
 }
 
+int MPI_FlattreeColectiva(void *buffer, int count, MPI_Datatype datatype,
+	int root, MPI_Comm comm){
+
+	/*for(i=1; i<numProcs; i++){
+		MPI_Send(&n, 1, MPI_INT, i, 99, MPI_COMM_WORLD);
+	}*/
+	
+	return 0;
+}
+
+int MPI_BinomialColectiva(void *buffer, int count, MPI_Datatype datatype,
+	int root, MPI_Comm comm){
+
+	
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	MPI_Init(&argc, &argv);
@@ -35,31 +52,29 @@ int main(int argc, char *argv[])
 		{
 			printf("Enter the number of intervals: (0 quits) \n");
 			scanf("%d",&n);
-
-			for(i=1; i<numProcs; i++){
-				MPI_Send(&n, 1, MPI_INT, i, 99, MPI_COMM_WORLD);
-			}
+			
+			MPI_Bcast(&n, numProcs, MPI_INT, 0, MPI_COMM_WORLD);
 
 			if (n == 0) break;
 
 			pi = calculaPi(0, numProcs, n);
 
-			for(i=1; i<numProcs; i++){
-				MPI_Recv(&pi_parcial, 1, MPI_DOUBLE, MPI_ANY_SOURCE, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-				pi += pi_parcial;
-			}
+			MPI_Reduce(&pi, &pi_parcial, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+			pi = pi_parcial;
 
 			printf("pi is approximately %.16f, Error is %.16f\n", pi, fabs(pi - PI25DT));
 		}
 
 	}else{
 		while(!done){
-			MPI_Recv(&n, 1, MPI_INT, 0, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+			MPI_Bcast(&n, numProcs, MPI_INT, 0, MPI_COMM_WORLD);
 			if (n == 0) break;
 
 			pi = calculaPi(rank, numProcs, n);
 			
-			MPI_Send(&pi, 1, MPI_DOUBLE, 0, 99, MPI_COMM_WORLD);
+			MPI_Reduce(&pi, &pi_parcial, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 		}
 
 	}
