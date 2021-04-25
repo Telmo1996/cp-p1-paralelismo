@@ -18,22 +18,17 @@ double calculaPi(int numProc, int numProcs, int n){
 int MPI_FlattreeColectiva(void *buffer, int count, MPI_Datatype datatype,
 	int root, MPI_Comm comm){
 	int i, rank, numprocs;
+	MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank==root){
 		for(i=0; i<numprocs; i++){
-			if(i!=root){	//No se envía a si mismo, no se puede poner i=1 porque el root no tiene por que ser el primer proceso
+			if(i!=root){	
 				MPI_Send(buffer,count, datatype, i, 0, comm);
 			}
 		}
 	}else{
 		MPI_Recv(buffer, count, datatype, root, 0, comm, MPI_STATUS_IGNORE);
 	}
-	
-	return 0;
-}
-
-int MPI_BinomialColectiva(void *buffer, int count, MPI_Datatype datatype,
-	int root, MPI_Comm comm){
-
 	
 	return 0;
 }
@@ -59,7 +54,7 @@ int main(int argc, char *argv[])
 			printf("Enter the number of intervals: (0 quits) \n");
 			scanf("%d",&n);
 			
-			MPI_Bcast(&n, numProcs, MPI_INT, 0, MPI_COMM_WORLD);
+			MPI_FlattreeColectiva(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
 			if (n == 0) break;
 
@@ -75,7 +70,7 @@ int main(int argc, char *argv[])
 	}else{
 		while(!done){
 
-			MPI_Bcast(&n, numProcs, MPI_INT, 0, MPI_COMM_WORLD);
+			MPI_FlattreeColectiva(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 			if (n == 0) break;
 
 			pi = calculaPi(rank, numProcs, n);
