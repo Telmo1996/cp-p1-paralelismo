@@ -15,29 +15,6 @@ double calculaPi(int numProc, int numProcs, int n){
 
 }
 
-int MPI_FlattreeColectiva(void *buffer, int count, MPI_Datatype datatype,
-	int root, MPI_Comm comm){
-	int i, rank, numprocs;
-	if(rank==root){
-		for(i=0; i<numprocs; i++){
-			if(i!=root){	//No se envía a si mismo, no se puede poner i=1 porque el root no tiene por que ser el primer proceso
-				MPI_Send(buffer,count, datatype, i, 0, comm);
-			}
-		}
-	}else{
-		MPI_Recv(buffer, count, datatype, root, 0, comm, MPI_STATUS_IGNORE);
-	}
-	
-	return 0;
-}
-
-int MPI_BinomialColectiva(void *buffer, int count, MPI_Datatype datatype,
-	int root, MPI_Comm comm){
-
-	
-	return 0;
-}
-
 int main(int argc, char *argv[])
 {
 	MPI_Init(&argc, &argv);
