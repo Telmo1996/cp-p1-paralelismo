@@ -7,7 +7,7 @@ double calculaPi(int numProc, int numProcs, int n){
 
 	h   = 1.0 / (double) n;
 	sum = 0.0;
-	for (int i = numProc; i <= n; i += numProcs) {
+	for (int i = numProc+1; i <= n; i += numProcs) {
 		x = h * ((double)i - 0.5);
 		sum += 4.0 / (1.0 + x*x);
 	}
